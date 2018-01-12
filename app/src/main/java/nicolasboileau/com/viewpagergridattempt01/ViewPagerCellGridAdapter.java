@@ -125,7 +125,6 @@ public class ViewPagerCellGridAdapter extends BaseAdapter {
             pagerParams.height = mRowHeight;
             mViewPager.setLayoutParams (pagerParams);
             //mViewPager.setAdapter(new SponsorCircularViewPagerAdapter(mContext, ((MainActivity) mContext).getSupportFragmentManager(), mCellSponsorList));
-
             mViewPager.setAdapter(new SponsorCircularViewPagerAdapter(mContext, ((MainActivity) mContext).getSupportFragmentManager(), mCellSponsorList));
             //maybe?: https://stackoverflow.com/questions/42295470/how-to-call-getsupportfragmentmanager-in-arrayadapter
             final CircularViewPagerHandler circularViewPagerHandler = new CircularViewPagerHandler(mViewPager);
