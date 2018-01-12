@@ -116,7 +116,7 @@ public class ViewPagerCellGridAdapter extends BaseAdapter {
         mCellSponsorList = mCellData.mCellSponsorList;
 
         if (convertView == null) {
-            mViewPager = new ViewPager(mContext);
+            mViewPager = new NonSwipeableViewPager(mContext);
             //-----https://stackoverflow.com/questions/8460680/how-can-i-assign-an-id-to-a-view-programmatically
             //mViewPager.generateViewId();
             mViewPager.setId(mCellId);
@@ -134,8 +134,70 @@ public class ViewPagerCellGridAdapter extends BaseAdapter {
             mViewPager = (ViewPager) convertView;
         }
 
+
+        //int slideId = getLocalOffset(0);
+        //mViewPager.setCurrentItem(slideId, false);
+        moveViaGlobalOffset(0);
+
         return mViewPager;
     }
+
+    private int getLocalOffset(int globalOffset) {
+
+        int aliasGlobalOffset = globalOffset;
+        int cellItemsPerRow = getCellItemsPerRowCount();
+
+        if (aliasGlobalOffset == -1) {
+            aliasGlobalOffset = 0;
+        }
+
+        int localOffset = mCellColumnId + aliasGlobalOffset;
+
+        if (localOffset > cellItemsPerRow) {
+            localOffset = localOffset % cellItemsPerRow;
+        }
+
+        //----this looping view pager setup wants indexes starting at 2 and ending at the total slide coune plus one
+        if (localOffset == 1) {
+            localOffset = cellItemsPerRow + 1;
+        }
+
+        return localOffset;
+    }
+
+    /**
+     * Move to slide at offset
+     *
+     * @param globalOffset
+     */
+    public void moveViaGlobalOffset(int globalOffset) {
+
+        int pos = mViewPager.getCurrentItem();
+        Boolean smoothScroll = true;
+        int cellItemsPerRow = getCellItemsPerRowCount();
+        int id = getLocalOffset(globalOffset);
+        int distance;
+
+        if (id == cellItemsPerRow + 1 && pos == 2) {
+            id = 1;
+        } else  if (id == cellItemsPerRow && pos == 1) {
+            id = -1;
+        }
+
+        distance = Math.abs(pos-id);
+
+        if (distance == 1 || (pos == 1 && id == -1)) {
+            //-----only moving left or right by one slide, retain smooth scroll
+            //-----the second half of above condition compenstaes for reverse looping from first item to last itme
+            smoothScroll = true;
+        } else {
+            //-----probably a catchup, skip the nasty scroll...
+            smoothScroll = false;
+        }
+
+        mViewPager.setCurrentItem(id, smoothScroll);
+    }
+
 
     //-----NB added 20171212-16:30
     //-------part of the ecosystem that allows the view pager to loop at its ends
